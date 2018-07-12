@@ -1,0 +1,14 @@
+https://cloud.netapp.com/blog/ebs-volumes-backup-automation
+
+https://n2ws.com/blog/how-to-guides/automate-amazon-ec2-instance-backup
+
+https://aws.amazon.com/answers/infrastructure-management/ops-automator/
+
+https://giancarlopetrini.com/automate-snapshots/
+https://github.com/giancarlopetrini/aws-snapshot-automation
+
+https://devopscube.com/automate-ebs-snapshot-creation-deletion/
+
+https://www.linkedin.com/pulse/automated-ebs-snapshots-using-aws-lambda-cloudwatch-amir-boroumand
+https://www.npmjs.com/package/lambda-expire-snapshots
+http://www.timebie.com/timezone/greenwichmeanindia.php
