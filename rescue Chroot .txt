@@ -1,0 +1,7 @@
+# mount -o nouuid /dev/xvdf7 /mnt
+# for i in dev proc sys run; do mount -o bind /$i /mnt/$i; done
+# chroot /mnt
+<in chroot>
+   # apt-get install cloud-init -y
+   # exit
+# umount /mnt/{dev,proc,run,sys,boot}

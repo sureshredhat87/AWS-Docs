@@ -1,0 +1,23 @@
+#Set timezone to IST
+timedatectl set-timezone Asia/Calcutta
+# AMAZON LINUX 2
+# Install the CloudWatch Agent
+yum install amazon-cloudwatch-agent awscli -y
+yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install -y collectd
+systemctl start collectd
+systemctl enable collectd
+systemctl start amazon-cloudwatch-agent 
+systemctl enable amazon-cloudwatch-agent
+#mkdir -p /usr/share/collectd/
+#touch /usr/share/collectd/types.db
+# Create a CloudWatch Agent configuration file
+cd /opt/aws/amazon-cloudwatch-agent/bin/ && aws s3 cp s3://muthootexim-userdatascripts/config.json config.json
+cp -p /opt/aws/amazon-cloudwatch-agent/bin/config.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/file_config.json
+# Start and enable the CloudWatch Agent
+systemctl restart amazon-cloudwatch-agent 
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+systemctl status amazon-cloudwatch-agent
+#Mount orion file share
+aws s3 cp s3://muthootexim-userdatascripts/orionazure.sh orionazure.sh
+sh orionazure.sh

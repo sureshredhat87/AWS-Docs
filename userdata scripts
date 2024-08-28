@@ -1,0 +1,14 @@
+#!/bin/bash
+export AWS_DEFAULT_REGION=us-east-1
+aws configure set region $AWS_DEFAULT_REGION
+cd /home/ec2-user/
+yum install -y unzip python-pip
+curl -o xray.zip https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-daemon/aws-xray-daemon-linux-3.x.zip
+#for ARM / a1 instances, use 'curl -o xray.zip https://s3.amazonaws.com/ee-assets-prod-us-east-1/modules/gd2018/assets/xray-arm.zip'
+unzip xray.zip
+chmod +x ./xray && nohup ./xray > xray.out 2>&1 &
+curl -o service-router.zip https://ee-assets-prod-us-east-1.s3.amazonaws.com/modules/gd2018/assets/service-router.zip
+unzip service-router.zip
+cd service-router
+pip install -r requirements.txt
+python service-router.py

@@ -1,0 +1,46 @@
+How can I get customized email notifications when my EC2 instance changes states?
+Last updated: 2019-10-16
+
+I want to receive email notifications when my Amazon Elastic Compute Cloud (Amazon EC2) instance changes states. How can I do this?
+
+Short Description
+To receive email notifications when your EC2 instance changes states:
+
+Create an Amazon Simple Notification Service (Amazon SNS) topic. The SNS topic will send messages to subscribing endpoints or clients.
+Create an Amazon CloudWatch event using the EC2 Instance State-change Notification event type.
+Resolution
+Create an SNS topic
+
+Open the Amazon SNS console, and then choose Topics from the navigation pane.
+Choose Create topic.
+For Name, enter a name for your topic.
+For Display name, enter a display name for your topic.
+Choose Create topic.
+On the Subscriptions tab, choose Create subscription.
+For Protocol, choose Email.
+For Endpoint, enter the email address where you want to receive the notifications.
+Choose Create subscription.
+A subscription confirmation email will be sent to the address you entered. Choose Confirm subscription in the email.
+Create a CloudWatch event
+
+Open the CloudWatch console, and then choose Events from the navigation pane.
+Choose Get started.
+For Event Source, choose Event Pattern.
+For Service Name, choose EC2.
+For Event Type, choose EC2 Instance State-change Notification.
+Choose Any state.
+Choose Any instance.
+Choose Add target.
+For Targets, choose SNS topic.
+For Topic, choose the topic name that you created earlier.
+For Configure input, choose Input Transformer.
+For Input Path, enter the following:
+{"instance-id":"$.detail.instance-id", "state":"$.detail.state", "time":"$.time", "region":"$.region", "account":"$.account"}
+For Input Template, enter the following:
+"At <time>, the status of your EC2 instance <instance-id> on account <account> in the AWS Region <region> has changed to <state>."
+Note: You can also enter custom input.
+Choose Configure details.
+For Name, enter a rule name.
+For Description, enter a rule description.
+Choose Create rule.
+You can test the rule by starting or stopping an instance. This rule generates an email notification every time an instances changes to any state, including stopped.

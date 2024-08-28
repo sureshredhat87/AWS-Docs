@@ -1,0 +1,14 @@
+#Set timezone to IST
+timedatectl set-timezone Asia/Calcutta
+# Ubuntu
+# Install the CloudWatch Agent
+apt-get install awscli collectd
+wget https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb
+sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+systemctl start amazon-cloudwatch-agent
+systemctl enable amazon-cloudwatch-agent
+cd /opt/aws/amazon-cloudwatch-agent/bin/
+cp -p /opt/aws/amazon-cloudwatch-agent/bin/config.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/file_config.json
+systemctl restart amazon-cloudwatch-agent
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+systemctl status amazon-cloudwatch-agent

@@ -1,0 +1,119 @@
+[ec2-user@ip-10-1-0-48 ~]$ cat waf_ip_update.py
+"""
+Update an AWS IP set with the the top 10 IP addresses from Apache logs
+"""
+import sys
+import re
+import boto3
+from collections import Counter
+from tabulate import tabulate
+import ipaddress
+
+
+def get_top_n_ipv4_addresses(num):
+    """
+    Parses apache logs to find the top n X-Forwarded-For ipv4 addresses
+    """
+    all_ipv4_addresses = []
+
+    with open('/var/log/httpd/access_log') as content:
+        for line in content:
+            # the first "cell" surrounded with brackets is the X-Forwarded-For
+            regex = re.search(r'\((.*?)\)', line)
+            if regex:
+                try:
+                    forwarded_for = ipaddress.ip_address(regex.group(0).strip("()"))
+                    if forwarded_for.version == 4:
+                        all_ipv4_addresses.append(forwarded_for.__str__())
+                except:
+                    continue
+
+    return Counter(all_ipv4_addresses).most_common(num)
+
+
+def get_top_n_ipv6_addresses(num):
+    """
+    Parses apache logs to find the top n X-Forwarded-For ipv6 addresses
+    """
+    all_ipv6_addresses = []
+
+    with open('/var/log/httpd/access_log') as content:
+        for line in content:
+            # the first "cell" surrounded with brackets is the X-Forwarded-For
+            regex = re.search(r'\((.*?)\)', line)
+            if regex:
+                try:
+                    forwarded_for = ipaddress.ip_address(regex.group(0).strip("()"))
+                    if forwarded_for.version == 6:
+                        all_ipv6_addresses.append(forwarded_for.__str__())
+                except:
+                    continue
+
+    return Counter(all_ipv6_addresses).most_common(num)
+
+
+def main():
+    """
+    Grab top 10 X-Forwarded-For ip addresses and send to a WAF ip list
+    """
+    top_ipv4_addresses = get_top_n_ipv4_addresses(10)
+    top_ipv6_addresses = get_top_n_ipv6_addresses(10)
+
+    print
+    print "Top 10 IPv4 Addresses"
+    print "==================="
+    print
+    print tabulate(top_ipv4_addresses, headers=["IP", "Count"])
+    print
+
+    print
+    print "Top 10 IPv6 Addresses"
+    print "==================="
+    print
+    print tabulate(top_ipv6_addresses, headers=["IP", "Count"])
+    print
+
+
+    waf = boto3.client('waf')
+    waf_ip_sets = waf.list_ip_sets(
+        Limit=100
+    )['IPSets']
+
+    if len(waf_ip_sets) < 1:
+        sys.exit('WAF IP sets appear to be misconfigured.  Expecting 1 IP set.')
+
+    waf_ip_set_id = waf_ip_sets[0]['IPSetId']
+    print "Updating IP set: ", waf_ip_sets[0]['Name']
+
+    if top_ipv4_addresses.__len__() != 0:
+        updates_list_ipv4 = [{
+            'Action': 'INSERT',
+            'IPSetDescriptor': {
+                'Type': 'IPV4',
+                'Value': "%s/32" % ip[0]
+            }
+        } for ip in top_ipv4_addresses]
+
+        waf.update_ip_set(IPSetId=waf_ip_set_id,
+                          ChangeToken=waf.get_change_token()['ChangeToken'],
+                          Updates=updates_list_ipv4)
+
+    if top_ipv6_addresses.__len__() != 0:
+
+        updates_list_ipv6 = [{
+            'Action': 'INSERT',
+            'IPSetDescriptor': {
+                'Type': 'IPV6',
+                'Value': "%s/128" % ip[0]
+            }
+        } for ip in top_ipv6_addresses]
+
+        waf.update_ip_set(IPSetId=waf_ip_set_id,
+                          ChangeToken=waf.get_change_token()['ChangeToken'],
+                          Updates=updates_list_ipv6)
+
+
+    print "Done!"
+
+if __name__ == "__main__":
+    main()

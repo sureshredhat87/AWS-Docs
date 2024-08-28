@@ -1,0 +1,14 @@
+https://docs.vultr.com/how-to-install-mysql-on-ubuntu-24-04
+To reproduce,
+
+After install mysql-server, run
+
+sudo mysql -u root mysql
+Execute the following SQL statements:
+
+UPDATE user SET plugin='mysql_native_password' WHERE User='root';
+FLUSH PRIVILEGES;
+And (but this should not be necessary)
+
+ALTER USER root@localhost IDENTIFIED BY 'password';
+Run sudo mysql_secure_installation, and then set root's password.

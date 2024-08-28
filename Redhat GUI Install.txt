@@ -1,0 +1,15 @@
+yum update
+sudo yum groupinstall -y "Server with GUI"
+sudo systemctl set-default graphical.target
+sudo systemctl default
+yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+yum install -y tigervnc-server xrdp
+chcon --type=bin_t /usr/sbin/xrdp
+chcon --type=bin_t /usr/sbin/xrdp-sesman
+sudo systemctl start xrdp
+sudo systemctl enable xrdp
+
+
+systemctl stop firewalld
+systemctl disable firewalld
+

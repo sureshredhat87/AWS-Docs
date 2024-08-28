@@ -1,0 +1,4 @@
+while true; do host oracledb3.csuycdocgtda.ap-south-1.rds.amazonaws.com | grep alias ; sleep 1; done
+
+date; while true; date; do nc -vz oracledb3.csuycdocgtda.ap-south-1.rds.amazonaws.com 1521; sleep 1; done
+

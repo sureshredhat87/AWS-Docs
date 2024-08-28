@@ -1,0 +1,8 @@
+vserver cifs share access-control create -share eximdocsuat -user-or-group eximuat -user-group-type windows -permission Full_Control -vserver fsx
+
+
+
+vserver  cifs users-and-groups local-user create --user-name eximuatuser1 -is-account-disabled false -vserver fsx
+
+
+vserver cifs share access-control modify -share eximdocsuat -user-or-group eximuat -permission Full_Control
